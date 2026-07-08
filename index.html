@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Villana's Programming Learning Log</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-weight: 400;
+      font-size: 16px;
+      line-height: 1.7;
+      color: #3a3a3a;
+      background: url('https://i.imgur.com/GeHZC4z.jpeg') center/cover no-repeat fixed;
+      min-height: 100vh;
+      padding: 2rem;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      background: #FFD4F3;
+      border-radius: 24px;
+      padding: 2rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+      backdrop-filter: blur(4px);
+    }
+
+    h1 {
+      text-align: center;
+      color: #d4819a;
+      font-size: 2.2rem;
+      margin-bottom: 0.25rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #6a8f64;
+      font-size: 1rem;
+      margin-bottom: 1.5rem;
+      font-weight: 500;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .calendar-header h2 {
+      font-size: 1.3rem;
+      color: #5a7d55;
+      font-weight: 700;
+    }
+
+    .nav-btn {
+      background: #f1c4d3;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 1.1rem;
+      cursor: pointer;
+      color: #7a5e68;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-btn:hover {
+      background: #e8a8bb;
+    }
+
+    .weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+      margin-bottom: 4px;
+    }
+
+    .weekday {
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #7d9e76;
+      padding: 6px 0;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: #4a4a4a;
+      background: #f9f5f0;
+      transition: background 0.2s, transform 0.15s;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .day.empty {
+      background: transparent;
+      cursor: default;
+    }
+
+    .day.today {
+      border: 2px solid #d4819a;
+    }
+
+    .day.has-entry {
+      background: #c8e6c9;
+      color: #2e7d32;
+      font-weight: 600;
+    }
+
+    .day.has-entry:hover {
+      background: #a5d6a7;
+      transform: scale(1.05);
+    }
+
+    .day:not(.empty):not(.has-entry):hover {
+      background: #f0e6dc;
+      transform: scale(1.05);
+    }
+
+    .day.selected {
+      background: #a5d6a7 !important;
+      box-shadow: 0 0 0 2px #66bb6a;
+    }
+
+    .entry-section {
+      margin-top: 1.5rem;
+    }
+
+    .entry-card {
+      background: #fce4ec;
+      border-radius: 16px;
+      padding: 1.25rem 1.5rem;
+      border-left: 4px solid #d4819a;
+      overflow: hidden;
+      max-height: 0;
+      opacity: 0;
+      transform: translateY(-10px);
+      transition: max-height 0.45s ease, opacity 0.35s ease, transform 0.35s ease, margin 0.3s ease;
+      margin-bottom: 0;
+    }
+
+    .entry-card.open {
+      max-height: 2000px;
+      opacity: 1;
+      transform: translateY(0);
+      margin-bottom: 1rem;
+    }
+
+    .entry-card h3 {
+      color: #d4819a;
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+
+    .entry-card .entry-content {
+      color: #3a3a3a;
+      font-size: 0.95rem;
+      line-height: 1.75;
+      white-space: pre-wrap;
+    }
+
+    .entry-card .no-entry-msg {
+      color: #999;
+      font-style: italic;
+      margin-bottom: 0.75rem;
+    }
+
+    .entry-card .inline-add {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .entry-card .inline-add textarea {
+      width: 100%;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #d4c7b8;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      background: #fcf8f4;
+      color: #5a5a5a;
+      outline: none;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+
+    .entry-card .inline-add textarea:focus {
+      border-color: #d4819a;
+    }
+
+    .entry-card .inline-add .btn-sm {
+      align-self: flex-start;
+      background: #c8e6c9;
+      border: none;
+      padding: 0.4rem 1rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #2e7d32;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .entry-card .inline-add .btn-sm:hover {
+      background: #a5d6a7;
+    }
+
+    .entry-images {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.75rem;
+    }
+
+    .entry-images img {
+      max-width: 100%;
+      max-height: 300px;
+      border-radius: 10px;
+      object-fit: contain;
+      background: #fcf8f4;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    }
+
+    .add-entry-form {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      padding: 1rem 0;
+      border-top: 1px solid #e8ddd0;
+    }
+
+    .add-entry-form .form-row {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .add-entry-form input[type="date"] {
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #d4c7b8;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      background: #fcf8f4;
+      color: #5a5a5a;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .add-entry-form input[type="date"]:focus {
+      border-color: #d4819a;
+    }
+
+    #entryText {
+      flex: 1;
+      min-width: 180px;
+      padding: 0.5rem 0.75rem;
+      border: 1px solid #d4c7b8;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-family: inherit;
+      background: #fcf8f4;
+      color: #5a5a5a;
+      outline: none;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+
+    #entryText:focus {
+      border-color: #d4819a;
+    }
+
+    .btn-add {
+      background: #c8e6c9;
+      border: none;
+      padding: 0.5rem 1.25rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #2e7d32;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-add:hover {
+      background: #a5d6a7;
+    }
+
+    .btn-add:active {
+      background: #81c784;
+    }
+
+    .btn-upload {
+      background: #f1c4d3;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #7a5e68;
+      cursor: pointer;
+      transition: background 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-upload:hover {
+      background: #e8a8bb;
+    }
+
+    .btn-upload:active {
+      background: #dc96af;
+    }
+
+    .entries-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .entry-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #e8f5e9;
+      padding: 0.6rem 1rem;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: #3a3a3a;
+    }
+
+    .entry-item .entry-item-date {
+      font-weight: 600;
+      color: #2e7d32;
+      min-width: 90px;
+    }
+
+    .entry-item .entry-item-delete {
+      background: none;
+      border: none;
+      color: #d4819a;
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0 0.25rem;
+      transition: color 0.2s;
+    }
+
+    .entry-item .entry-item-delete:hover {
+      color: #c2185b;
+    }
+
+    .upload-progress {
+      font-size: 0.8rem;
+      color: #81a97b;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Villana's Programming Learning Log</h1>
+  <p class="subtitle">🌸 track your journey, one day at a time 🌱</p>
+
+  <div class="calendar-header">
+    <button class="nav-btn" id="prevMonth">◀</button>
+    <h2 id="monthYear"></h2>
+    <button class="nav-btn" id="nextMonth">▶</button>
+  </div>
+
+  <div class="weekdays">
+    <div class="weekday">Sun</div>
+    <div class="weekday">Mon</div>
+    <div class="weekday">Tue</div>
+    <div class="weekday">Wed</div>
+    <div class="weekday">Thu</div>
+    <div class="weekday">Fri</div>
+    <div class="weekday">Sat</div>
+  </div>
+
+  <div class="calendar-grid" id="calendarGrid"></div>
+
+  <div class="entry-section">
+    <div id="entryCard" class="entry-card"></div>
+
+    <div class="add-entry-form">
+      <div class="form-row">
+        <input type="date" id="entryDate">
+        <textarea id="entryText" rows="2" placeholder="What did you learn today?"></textarea>
+        <button class="btn-add" id="addEntryBtn">+ Add Entry</button>
+      </div>
+      <div id="entriesList"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const entries = {};
+
+  entries['2026-07-08'] = [{
+    text: `Session 1 Summary:\n- What is OpenCode: An AI coding assistant that writes code from plain English descriptions\n- Installation: Install via npm install -g opencode-ai, requires Node.js\n- PowerShell fix: Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned allows npm scripts to run\n- Running OpenCode: Just type opencode in the terminal\n- Giving prompts: Describe what you want in plain English, paste or type it, press Enter\n- File management: Use VS Code's file explorer to rename, move, and open files\n- Open in browser: Right-click file \u2192 "Reveal in File Explorer" \u2192 double-click, or paste file path into browser\n- Sharing files: Send .html files through Discord like any other file\n- Navigating folders: cd C:\\Users\\... changes where OpenCode works\n- OpenCode commands: /clear clears chat, /exit exits OpenCode`,
+    images: []
+  }, {
+    text: `Session 2 \u2014 July 8, 2026:\n- Planning before building: Ask OpenCode to plan first, review the plan, then switch to Build mode with Tab key\n- /clear and /exit: Commands to clear the chat or close OpenCode\n- Checking current folder: Use cd in terminal before running opencode so it starts in the right place\n- Calendar UI: OpenCode can build interactive calendars using HTML, CSS, and JavaScript\n- Image backgrounds: Use CSS background-image with url() and backdrop-filter: blur() for style\n- Google Fonts: Import custom fonts like Poppins or Quicksand for better readability\n- Color hex codes: Fine-tune colors with codes like #FFD4F3, #C460B0\n- Image hosting: Use sites like imgur.com to host images and link them in code`,
+    images: []
+  }];
+
+  let currentDate = new Date();
+  let currentMonth = currentDate.getMonth();
+  let currentYear = currentDate.getFullYear();
+  let selectedDate = null;
+
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const MAX_FILE_SIZE = 50 * 1024 * 1024;
+
+  function formatDateKey(year, month, day) {
+    return `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+  }
+
+  function renderCalendar() {
+    const grid = document.getElementById('calendarGrid');
+    grid.innerHTML = '';
+
+    document.getElementById('monthYear').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const today = new Date();
+
+    for (let i = 0; i < firstDay; i++) {
+      const empty = document.createElement('div');
+      empty.className = 'day empty';
+      grid.appendChild(empty);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dayEl = document.createElement('div');
+      dayEl.className = 'day';
+      dayEl.textContent = d;
+
+      const key = formatDateKey(currentYear, currentMonth, d);
+
+      if (currentYear === today.getFullYear() && currentMonth === today.getMonth() && d === today.getDate()) {
+        dayEl.classList.add('today');
+      }
+
+      if (entries[key]) {
+        dayEl.classList.add('has-entry');
+      }
+
+      dayEl.dataset.date = key;
+      dayEl.addEventListener('click', () => {
+        showEntry(key, dayEl);
+      });
+
+      grid.appendChild(dayEl);
+    }
+
+    document.querySelectorAll('.day.selected').forEach(el => el.classList.remove('selected'));
+    if (selectedDate) {
+      const dayNum = parseInt(selectedDate.split('-')[2], 10);
+      const children = grid.children;
+      for (let i = firstDay; i < children.length; i++) {
+        if (parseInt(children[i].textContent, 10) === dayNum) {
+          children[i].classList.add('selected');
+          break;
+        }
+      }
+    }
+
+    updateEntriesList();
+  }
+
+  function showEntry(dateKey, dayEl) {
+    const card = document.getElementById('entryCard');
+
+    if (selectedDate === dateKey) {
+      card.classList.remove('open');
+      selectedDate = null;
+      document.querySelectorAll('.day.selected').forEach(el => el.classList.remove('selected'));
+      return;
+    }
+
+    selectedDate = dateKey;
+
+    document.querySelectorAll('.day.selected').forEach(el => el.classList.remove('selected'));
+    if (dayEl) dayEl.classList.add('selected');
+
+    const dateObj = new Date(dateKey + 'T00:00:00');
+    const formatted = dateObj.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+    const entry = entries[dateKey];
+
+    if (entry && entry.length > 0) {
+      const entriesHtml = entry.map((e, i) => {
+        const imagesHtml = e.images && e.images.length > 0
+          ? `<div class="entry-images">${e.images.map(src => `<img src="${src}" alt="Uploaded image">`).join('')}</div>`
+          : '';
+        const borderColor = i % 2 === 0 ? '#d4819a' : '#81a97b';
+        return `<div style="background:#fcf8f4;border-radius:12px;padding:1rem;margin-bottom:0.75rem;border-left:4px solid ${borderColor}">
+          <div class="entry-content">${e.text}</div>
+          ${imagesHtml}
+        </div>`;
+      }).join('');
+
+      card.innerHTML = `
+        <h3>${formatted}</h3>
+        ${entriesHtml}
+        <div style="margin-top:0.75rem;display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center">
+          <button class="btn-upload" onclick="uploadImage('${dateKey}')">+ Upload Image</button>
+          <input type="file" accept="image/*" id="fileInput_${dateKey}" style="display:none" onchange="handleFileSelect(event, '${dateKey}')">
+        </div>
+      `;
+    } else {
+      card.innerHTML = `
+        <h3>${formatted}</h3>
+        <div class="no-entry-msg">No entries for this date</div>
+        <div class="inline-add">
+          <textarea id="inlineText_${dateKey}" rows="2" placeholder="What did you learn today?"></textarea>
+          <button class="btn-sm" onclick="addEntryInline('${dateKey}')">Add Entry</button>
+        </div>
+      `;
+    }
+
+    card.classList.remove('open');
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        card.classList.add('open');
+      });
+    });
+  }
+
+  function addEntryInline(dateKey) {
+    const textarea = document.getElementById('inlineText_' + dateKey);
+    const text = textarea.value.trim();
+    if (!text) {
+      alert('Please write something.');
+      return;
+    }
+    if (!entries[dateKey]) {
+      entries[dateKey] = [];
+    }
+    entries[dateKey].push({ text, images: [] });
+    document.getElementById('entryCard').classList.remove('open');
+    selectedDate = null;
+    renderCalendar();
+    const grid = document.getElementById('calendarGrid');
+    const children = grid.children;
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const dayNum = parseInt(dateKey.split('-')[2], 10);
+    for (let i = firstDay; i < children.length; i++) {
+      if (parseInt(children[i].textContent, 10) === dayNum) {
+        showEntry(dateKey, children[i]);
+        break;
+      }
+    }
+  }
+
+  function addEntry(dateKey, text) {
+    if (!text.trim()) return;
+    if (!entries[dateKey]) {
+      entries[dateKey] = [];
+    }
+    entries[dateKey].push({ text: text.trim(), images: [] });
+    document.getElementById('entryText').value = '';
+    document.getElementById('entryCard').classList.remove('open');
+    selectedDate = null;
+    renderCalendar();
+  }
+
+  function uploadImage(dateKey) {
+    const input = document.getElementById('fileInput_' + dateKey);
+    if (input) {
+      input.value = '';
+      input.click();
+    }
+  }
+
+  function handleFileSelect(event, dateKey) {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      alert('Please select an image file.');
+      return;
+    }
+
+    if (file.size > MAX_FILE_SIZE) {
+      alert('File is too large. Maximum size is 50MB.');
+      return;
+    }
+
+    if (!entries[dateKey]) {
+      entries[dateKey] = [];
+    }
+    if (entries[dateKey].length === 0) {
+      entries[dateKey].push({ text: '', images: [] });
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const last = entries[dateKey].length - 1;
+      entries[dateKey][last].images.push(e.target.result);
+      renderCalendar();
+      const grid = document.getElementById('calendarGrid');
+      const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+      const dayNum = parseInt(dateKey.split('-')[2], 10);
+      const children = grid.children;
+      for (let i = firstDay; i < children.length; i++) {
+        if (parseInt(children[i].textContent, 10) === dayNum) {
+          showEntry(dateKey, children[i]);
+          break;
+        }
+      }
+    };
+    reader.onerror = function() {
+      alert('Failed to read file.');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function updateEntriesList() {
+    const container = document.getElementById('entriesList');
+    const sortedDates = Object.keys(entries).sort();
+
+    if (sortedDates.length === 0) {
+      container.innerHTML = '';
+      return;
+    }
+
+    container.innerHTML = '<div class="entries-list">' + sortedDates.map(key => {
+      const dateObj = new Date(key + 'T00:00:00');
+      const formatted = dateObj.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const entryArr = entries[key] || [];
+      const totalEntries = entryArr.length;
+      const text = entryArr.length > 0 ? (entryArr[0].text || '') : '';
+      const preview = text.split('\n')[0].substring(0, 60);
+      const imgCount = entryArr.reduce((sum, e) => sum + (e.images || []).length, 0);
+      const imgLabel = imgCount > 0 ? ` \u{1F5BC}x${imgCount}` : '';
+      const countLabel = totalEntries > 1 ? ` (${totalEntries} entries)` : '';
+      return `<div class="entry-item">
+        <span class="entry-item-date">${formatted}</span>
+        <span>${preview}${text.length > 60 ? '\u2026' : ''}${countLabel}${imgLabel}</span>
+        <button class="entry-item-delete" data-key="${key}">\u2715</button>
+      </div>`;
+    }).join('') + '</div>';
+
+    container.querySelectorAll('.entry-item-delete').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const key = e.target.dataset.key;
+        delete entries[key];
+        if (selectedDate === key) {
+          document.getElementById('entryCard').classList.remove('open');
+          selectedDate = null;
+        }
+        renderCalendar();
+      });
+    });
+  }
+
+  document.getElementById('prevMonth').addEventListener('click', () => {
+    currentMonth--;
+    if (currentMonth < 0) { currentMonth = 11; currentYear--; }
+    selectedDate = null;
+    document.getElementById('entryCard').classList.remove('open');
+    renderCalendar();
+  });
+
+  document.getElementById('nextMonth').addEventListener('click', () => {
+    currentMonth++;
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    selectedDate = null;
+    document.getElementById('entryCard').classList.remove('open');
+    renderCalendar();
+  });
+
+  document.getElementById('addEntryBtn').addEventListener('click', () => {
+    const dateInput = document.getElementById('entryDate');
+    const text = document.getElementById('entryText').value;
+    if (!dateInput.value) {
+      alert('Please select a date.');
+      return;
+    }
+    if (!text.trim()) {
+      alert('Please write something.');
+      return;
+    }
+    addEntry(dateInput.value, text);
+  });
+
+  document.getElementById('entryDate').valueAsDate = new Date();
+
+  renderCalendar();
+</script>
+
+</body>
+</html>
